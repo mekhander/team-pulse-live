@@ -27,12 +27,18 @@ async function renderDashboard() {
   const cards = await Promise.all(sessions.map(async (session) => {
     const surveyUrl = `${siteRoot()}?s=${encodeURIComponent(session.id)}`;
     const resultUrl = `${siteRoot()}results.html?s=${encodeURIComponent(session.id)}#key=${encodeURIComponent(session.viewKey)}`;
-    const qr = await QRCode.toDataURL(surveyUrl, { width: 360, margin: 1, errorCorrectionLevel: 'M' });
+    const [surveyQr, resultQr] = await Promise.all([
+      QRCode.toDataURL(surveyUrl, { width: 360, margin: 1, errorCorrectionLevel: 'M' }),
+      QRCode.toDataURL(resultUrl, { width: 360, margin: 1, errorCorrectionLevel: 'M' }),
+    ]);
     const statusText = session.status === 'collecting' ? '응답 받는 중' : session.status === 'published' ? '결과 공개됨' : '설문 종료됨';
     return `<article class="session-card" data-session="${safe(session.id)}">
       <div class="session-top"><h3 class="session-title">${safe(session.label)}</h3><div class="count">${session.count}명 제출</div></div>
-      <div class="status-pill">${statusText}</div><img class="qr" src="${qr}" alt="설문 참여 QR코드">
-      <div class="link-box">설문 링크<br>${safe(surveyUrl)}</div><div class="link-box">Miro 결과 보기 링크<br>${safe(resultUrl)}</div>
+      <div class="status-pill">${statusText}</div>
+      <div class="qr-grid">
+        <section class="qr-card"><h4>설문 참여 QR</h4><img class="qr" src="${surveyQr}" alt="설문 참여 QR코드"><div class="link-box">${safe(surveyUrl)}</div></section>
+        <section class="qr-card"><h4>결과 보기 QR</h4><img class="qr" src="${resultQr}" alt="결과 보기 QR코드"><div class="link-box">${safe(resultUrl)}</div></section>
+      </div>
       <div class="admin-actions"><button class="secondary-button" data-action="copy-survey">설문 링크 복사</button>
         <button class="secondary-button" data-action="copy-results">결과 링크 복사</button>
         <button class="danger-button" data-action="close">설문 종료</button><button class="primary-button" data-action="publish">결과 공개</button>
