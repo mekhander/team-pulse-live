@@ -20,16 +20,22 @@ function legend(options) {
   return `<div class="legend">${options.map((option, index) => `<span><i></i><b>${index + 1}</b>${option}</span>`).join('')}</div>`;
 }
 
+function resultSeries(label, questionText, summary) {
+  return `<section class="result-series">
+    <div class="series-heading">
+      <div><strong>${label}</strong><p>${questionText}</p></div>
+      <div class="average">${formatScore(summary.average)}</div>
+    </div>
+    ${bar(summary)}
+  </section>`;
+}
+
 function comparisonCard(group, results) {
   const self = results.questions[group.self - 1];
   const team = results.questions[group.team - 1];
   return `<section class="comparison-card"><h2>${group.title}</h2>
-    <div class="question-context">
-      <p><strong>나 자신</strong><span>${question(group.self).text}</span></p>
-      <p><strong>팀 구성원</strong><span>${question(group.team).text}</span></p>
-    </div>
-    <div class="comparison-row"><div class="row-label">나 자신</div>${bar(self)}<div class="average">${formatScore(self.average)}</div></div>
-    <div class="comparison-row"><div class="row-label">팀 구성원</div>${bar(team)}<div class="average">${formatScore(team.average)}</div></div>
+    ${resultSeries('나 자신', question(group.self).text, self)}
+    ${resultSeries('팀 구성원', question(group.team).text, team)}
     ${legend(question(group.self).options)}
   </section>`;
 }
@@ -48,8 +54,7 @@ async function load() {
         <div class="results-meta"><strong>현재까지 ${results.count}명 제출</strong><br>${new Date(results.generatedAt).toLocaleString('ko-KR')} 기준</div></header>
       <div class="comparison-list">${comparisonGroups.map((group) => comparisonCard(group, results)).join('')}
         <section class="comparison-card"><h2>${singleQuestion.title}</h2>
-          <div class="question-context"><p><strong>팀에 대한 인식</strong><span>${question(singleQuestion.question).text}</span></p></div>
-          <div class="comparison-row"><div class="row-label">팀에 대한 인식</div>${bar(single)}<div class="average">${formatScore(single.average)}</div></div>
+          ${resultSeries('팀에 대한 인식', question(singleQuestion.question).text, single)}
           ${legend(question(singleQuestion.question).options)}
         </section>
       </div></div>`;
