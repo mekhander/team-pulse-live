@@ -1,0 +1,13 @@
+name = "team-pulse-live"
+main = "worker/index.js"
+compatibility_date = "2026-11-23"
+workers_dev = true
+preview_urls = false
+
+[[d1_databases]]
+binding = "DB"
+database_name = "team-pulse-live"
+database_id = "4fd36eeb-12e4-46cf-b362-3ee6278927e3"
+
+[vars]
+ALLOWED_ORIGIN = "https://mekhander.github.io"

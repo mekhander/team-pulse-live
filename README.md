@@ -2,6 +2,10 @@
 
 팀코칭 시간에 휴대폰으로 진행하는 익명 설문과 결과 화면입니다.
 
+- 설문 사이트: https://mekhander.github.io/team-pulse-live/
+- 진행자 화면: https://mekhander.github.io/team-pulse-live/admin.html
+- 응답 API: https://team-pulse-live.mekhander.workers.dev
+
 ## 제공 기능
 
 - 참여자는 무작위 세션 주소 또는 QR코드로 접속합니다.
