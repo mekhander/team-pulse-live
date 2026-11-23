@@ -26,12 +26,12 @@ function renderLogin(error = '') {
 async function renderDashboard() {
   const cards = await Promise.all(sessions.map(async (session) => {
     const surveyUrl = `${siteRoot()}?s=${encodeURIComponent(session.id)}`;
-    const resultUrl = `${siteRoot()}results.html?s=${encodeURIComponent(session.id)}#key=${encodeURIComponent(session.viewKey)}`;
+    const resultUrl = `${siteRoot()}results.html?s=${encodeURIComponent(session.id)}`;
     const [surveyQr, resultQr] = await Promise.all([
       QRCode.toDataURL(surveyUrl, { width: 360, margin: 1, errorCorrectionLevel: 'M' }),
       QRCode.toDataURL(resultUrl, { width: 360, margin: 1, errorCorrectionLevel: 'M' }),
     ]);
-    const statusText = session.status === 'collecting' ? '응답 받는 중' : session.status === 'published' ? '결과 공개됨' : '설문 종료됨';
+    const statusText = session.status === 'collecting' ? '응답 받는 중' : '설문 종료됨';
     return `<article class="session-card" data-session="${safe(session.id)}">
       <div class="session-top"><h3 class="session-title">${safe(session.label)}</h3><div class="count">${session.count}명 제출</div></div>
       <div class="status-pill">${statusText}</div>
@@ -41,8 +41,9 @@ async function renderDashboard() {
       </div>
       <div class="admin-actions"><button class="secondary-button" data-action="copy-survey">설문 링크 복사</button>
         <button class="secondary-button" data-action="copy-results">결과 링크 복사</button>
-        <button class="danger-button" data-action="close">설문 종료</button><button class="primary-button" data-action="publish">결과 공개</button>
-        <button class="secondary-button reopen-button" data-action="reopen">응답 다시 받기</button></div>
+        <button class="danger-button" data-action="close">설문 종료</button>
+        <button class="secondary-button reopen-button" data-action="reopen">응답 다시 받기</button>
+        <button class="danger-button delete-button" data-action="delete">세션 삭제</button></div>
     </article>`;
   }));
 
@@ -82,10 +83,17 @@ async function handleAction(event) {
   const session = sessions.find((item) => item.id === card.dataset.session);
   const action = event.currentTarget.dataset.action;
   const surveyUrl = `${siteRoot()}?s=${encodeURIComponent(session.id)}`;
-  const resultUrl = `${siteRoot()}results.html?s=${encodeURIComponent(session.id)}#key=${encodeURIComponent(session.viewKey)}`;
+  const resultUrl = `${siteRoot()}results.html?s=${encodeURIComponent(session.id)}`;
   if (action === 'copy-survey' || action === 'copy-results') {
     await navigator.clipboard.writeText(action === 'copy-survey' ? surveyUrl : resultUrl);
     event.currentTarget.textContent = '복사됨';
+    return;
+  }
+  if (action === 'delete') {
+    const confirmed = window.confirm(`진행자용 세션 “${session.label}”과 모든 응답을 삭제할까요? 이 작업은 되돌릴 수 없습니다.`);
+    if (!confirmed) return;
+    await api(`/api/admin/sessions/${encodeURIComponent(session.id)}`, { method: 'DELETE', headers: authHeaders() });
+    await refresh();
     return;
   }
   await api(`/api/admin/sessions/${encodeURIComponent(session.id)}/${action}`, { method: 'POST', headers: authHeaders(), body: '{}' });

@@ -14,7 +14,7 @@ function json(data, status, origin) {
       'content-type': 'application/json; charset=utf-8',
       'access-control-allow-origin': origin,
       'access-control-allow-headers': 'content-type, authorization, x-view-key',
-      'access-control-allow-methods': 'GET, POST, OPTIONS',
+      'access-control-allow-methods': 'GET, POST, DELETE, OPTIONS',
       'cache-control': 'no-store',
       'vary': 'origin',
     },
@@ -81,11 +81,8 @@ export default {
         const id = decodeURIComponent(resultsMatch[1]);
         const found = await getSession(env, id);
         if (!found) return reply({ error: '결과를 찾을 수 없습니다.' }, 404);
-        const suppliedHash = await hash(request.headers.get('x-view-key') || '');
-        if (suppliedHash !== found.view_key_hash) return reply({ error: '결과 링크가 올바르지 않습니다.' }, 403);
-        if (found.status !== 'published') return reply({ error: '진행자가 아직 결과를 공개하지 않았습니다.' }, 409);
         const rows = await env.DB.prepare('SELECT answers FROM responses WHERE session_id = ? ORDER BY id').bind(id).all();
-        return reply({ ...aggregateResponses(rows.results), publishedAt: found.published_at });
+        return reply({ ...aggregateResponses(rows.results), generatedAt: new Date().toISOString() });
       }
 
       if (url.pathname.startsWith('/api/admin/') && !authorized(request, env)) {
@@ -94,7 +91,7 @@ export default {
 
       if (request.method === 'GET' && url.pathname === '/api/admin/sessions') {
         const rows = await env.DB.prepare(`SELECT s.id, s.label, s.view_key AS viewKey, s.status, s.created_at, s.published_at, COUNT(r.id) AS count
-          FROM sessions s LEFT JOIN responses r ON r.session_id = s.id GROUP BY s.id ORDER BY s.created_at DESC`).all();
+          FROM sessions s LEFT JOIN responses r ON r.session_id = s.id GROUP BY s.id ORDER BY s.created_at DESC, s.rowid DESC`).all();
         return reply({ sessions: rows.results });
       }
 
@@ -108,13 +105,21 @@ export default {
         return reply({ id, viewKey }, 201);
       }
 
-      const adminAction = url.pathname.match(/^\/api\/admin\/sessions\/([^/]+)\/(close|publish|reopen)$/);
+      const deleteSession = url.pathname.match(/^\/api\/admin\/sessions\/([^/]+)$/);
+      if (request.method === 'DELETE' && deleteSession) {
+        const id = decodeURIComponent(deleteSession[1]);
+        await env.DB.batch([
+          env.DB.prepare('DELETE FROM responses WHERE session_id = ?').bind(id),
+          env.DB.prepare('DELETE FROM sessions WHERE id = ?').bind(id),
+        ]);
+        return reply({ ok: true });
+      }
+
+      const adminAction = url.pathname.match(/^\/api\/admin\/sessions\/([^/]+)\/(close|reopen)$/);
       if (request.method === 'POST' && adminAction) {
         const id = decodeURIComponent(adminAction[1]);
         const action = adminAction[2];
-        if (action === 'publish') {
-          await env.DB.prepare("UPDATE sessions SET status = 'published', published_at = ? WHERE id = ?").bind(new Date().toISOString(), id).run();
-        } else if (action === 'reopen') {
+        if (action === 'reopen') {
           await env.DB.prepare("UPDATE sessions SET status = 'collecting', published_at = NULL WHERE id = ?").bind(id).run();
         } else {
           await env.DB.prepare("UPDATE sessions SET status = 'closed' WHERE id = ?").bind(id).run();

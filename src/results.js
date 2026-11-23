@@ -1,10 +1,9 @@
 import './styles.css';
 import { questions, comparisonGroups, singleQuestion } from './questions.js';
-import { api, getSessionId, getViewKey } from './api.js';
+import { api, getSessionId } from './api.js';
 
 const app = document.querySelector('#app');
 const sessionId = getSessionId();
-const viewKey = getViewKey();
 const question = (id) => questions.find((item) => item.id === id);
 const formatScore = (value) => `${Number(value.toFixed(1))}/4`;
 
@@ -36,13 +35,13 @@ function waiting(message) {
 }
 
 async function load() {
-  if (!sessionId || !viewKey) return waiting('유효한 결과 링크가 필요합니다.');
+  if (!sessionId) return waiting('유효한 결과 링크가 필요합니다.');
   try {
-    const results = await api(`/api/sessions/${encodeURIComponent(sessionId)}/results`, { headers: { 'x-view-key': viewKey } });
+    const results = await api(`/api/sessions/${encodeURIComponent(sessionId)}/results`);
     const single = results.questions[singleQuestion.question - 1];
     app.innerHTML = `<div class="shell results-shell">
       <header class="results-header"><div><p class="eyebrow">TEAM CHECK-IN</p><h1>설문 결과</h1></div>
-        <div class="results-meta"><strong>${results.count}명 제출</strong><br>${new Date(results.publishedAt).toLocaleString('ko-KR')}</div></header>
+        <div class="results-meta"><strong>현재까지 ${results.count}명 제출</strong><br>${new Date(results.generatedAt).toLocaleString('ko-KR')} 기준</div></header>
       <div class="comparison-list">${comparisonGroups.map((group) => comparisonCard(group, results)).join('')}
         <section class="comparison-card"><h2>${singleQuestion.title}</h2>
           <div class="question-context"><p><strong>팀에 대한 인식</strong><span>${question(singleQuestion.question).text}</span></p></div>
@@ -54,3 +53,4 @@ async function load() {
 }
 
 load();
+setInterval(load, 10000);
