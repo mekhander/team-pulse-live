@@ -6,6 +6,7 @@ const app = document.querySelector('#app');
 const sessionId = getSessionId();
 const viewKey = getViewKey();
 const question = (id) => questions.find((item) => item.id === id);
+const formatScore = (value) => `${Number(value.toFixed(1))}/4`;
 
 function bar(summary) {
   return `<div class="stacked-bar" aria-label="응답 분포">${summary.percentages.map((value) =>
@@ -20,8 +21,12 @@ function comparisonCard(group, results) {
   const self = results.questions[group.self - 1];
   const team = results.questions[group.team - 1];
   return `<section class="comparison-card"><h2>${group.title}</h2>
-    <div class="comparison-row"><div class="row-label">나 자신</div>${bar(self)}<div class="average">${self.average.toFixed(2)}</div></div>
-    <div class="comparison-row"><div class="row-label">팀 구성원</div>${bar(team)}<div class="average">${team.average.toFixed(2)}</div></div>
+    <div class="question-context">
+      <p><strong>나 자신</strong><span>${question(group.self).text}</span></p>
+      <p><strong>팀 구성원</strong><span>${question(group.team).text}</span></p>
+    </div>
+    <div class="comparison-row"><div class="row-label">나 자신</div>${bar(self)}<div class="average">${formatScore(self.average)}</div></div>
+    <div class="comparison-row"><div class="row-label">팀 구성원</div>${bar(team)}<div class="average">${formatScore(team.average)}</div></div>
     ${legend(question(group.self).options)}
   </section>`;
 }
@@ -40,7 +45,8 @@ async function load() {
         <div class="results-meta"><strong>${results.count}명 제출</strong><br>${new Date(results.publishedAt).toLocaleString('ko-KR')}</div></header>
       <div class="comparison-list">${comparisonGroups.map((group) => comparisonCard(group, results)).join('')}
         <section class="comparison-card"><h2>${singleQuestion.title}</h2>
-          <div class="comparison-row"><div class="row-label">팀에 대한 인식</div>${bar(single)}<div class="average">${single.average.toFixed(2)}</div></div>
+          <div class="question-context"><p><strong>팀에 대한 인식</strong><span>${question(singleQuestion.question).text}</span></p></div>
+          <div class="comparison-row"><div class="row-label">팀에 대한 인식</div>${bar(single)}<div class="average">${formatScore(single.average)}</div></div>
           ${legend(question(singleQuestion.question).options)}
         </section>
       </div></div>`;
