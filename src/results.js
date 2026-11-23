@@ -8,12 +8,16 @@ const question = (id) => questions.find((item) => item.id === id);
 const formatScore = (value) => `${Number(value.toFixed(1))}/4`;
 
 function bar(summary) {
-  return `<div class="stacked-bar" aria-label="응답 분포">${summary.percentages.map((value) =>
-    `<div class="segment" style="width:${value}%">${value >= 12 ? `${value}%` : ''}</div>`).join('')}</div>`;
+  return `<div class="bar-wrap">
+    <div class="stacked-bar" aria-hidden="true">${summary.percentages.map((value) =>
+      `<div class="segment" style="width:${value}%"></div>`).join('')}</div>
+    <div class="bar-values" aria-label="선택지별 응답 비율">${summary.percentages.map((value, index) =>
+      `<span><i></i><b>${index + 1}</b><strong>${value}%</strong></span>`).join('')}</div>
+  </div>`;
 }
 
 function legend(options) {
-  return `<div class="legend">${options.map((option) => `<span><i></i>${option}</span>`).join('')}</div>`;
+  return `<div class="legend">${options.map((option, index) => `<span><i></i><b>${index + 1}</b>${option}</span>`).join('')}</div>`;
 }
 
 function comparisonCard(group, results) {
