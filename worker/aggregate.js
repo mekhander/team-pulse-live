@@ -1,7 +1,7 @@
 export function aggregateResponses(rows) {
   const answers = rows.map((row) => JSON.parse(row.answers));
   const count = answers.length;
-  const questions = Array.from({ length: 13 }, (_, index) => {
+  const questions = Array.from({ length: 7 }, (_, index) => {
     const counts = [0, 0, 0, 0];
     for (const response of answers) counts[response[index] - 1] += 1;
     const total = counts.reduce((sum, value, option) => sum + value * (option + 1), 0);
@@ -11,5 +11,5 @@ export function aggregateResponses(rows) {
 }
 
 export function validAnswers(answers) {
-  return Array.isArray(answers) && answers.length === 13 && answers.every((answer) => Number.isInteger(answer) && answer >= 1 && answer <= 4);
+  return Array.isArray(answers) && answers.length === 7 && answers.every((answer) => Number.isInteger(answer) && answer >= 1 && answer <= 4);
 }

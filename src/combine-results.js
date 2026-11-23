@@ -1,6 +1,7 @@
 export function combineResults(resultSets) {
   const count = resultSets.reduce((sum, result) => sum + result.count, 0);
-  const questions = Array.from({ length: 13 }, (_, index) => {
+  const questionCount = resultSets[0]?.questions.length || 0;
+  const questions = Array.from({ length: questionCount }, (_, index) => {
     const counts = [0, 0, 0, 0];
     for (const result of resultSets) {
       result.questions[index].counts.forEach((value, option) => { counts[option] += value; });

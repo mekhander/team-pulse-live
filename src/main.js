@@ -4,7 +4,7 @@ import { api, getSessionId } from './api.js';
 
 const app = document.querySelector('#app');
 const sessionId = getSessionId();
-const storageKey = `team-pulse:${sessionId}`;
+const storageKey = `team-pulse-v2:${sessionId}`;
 
 function clientId() {
   const key = `${storageKey}:client`;

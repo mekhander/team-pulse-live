@@ -3,16 +3,16 @@ import assert from 'node:assert/strict';
 import { aggregateResponses, validAnswers } from '../worker/aggregate.js';
 import { combineResults } from '../src/combine-results.js';
 
-test('validates a complete 13-question response', () => {
-  assert.equal(validAnswers(Array(13).fill(1)), true);
-  assert.equal(validAnswers(Array(12).fill(1)), false);
-  assert.equal(validAnswers([...Array(12).fill(1), 5]), false);
+test('validates a complete 7-question response', () => {
+  assert.equal(validAnswers(Array(7).fill(1)), true);
+  assert.equal(validAnswers(Array(6).fill(1)), false);
+  assert.equal(validAnswers([...Array(6).fill(1), 5]), false);
 });
 
 test('aggregates counts, percentages and averages', () => {
   const rows = [
-    { answers: JSON.stringify(Array(13).fill(1)) },
-    { answers: JSON.stringify(Array(13).fill(4)) },
+    { answers: JSON.stringify(Array(7).fill(1)) },
+    { answers: JSON.stringify(Array(7).fill(4)) },
   ];
   const result = aggregateResponses(rows);
   assert.equal(result.count, 2);
@@ -23,8 +23,8 @@ test('aggregates counts, percentages and averages', () => {
 
 test('combines multiple session result sets using response counts', () => {
   const makeQuestion = (counts) => ({ counts, percentages: [0, 0, 0, 0], average: 0 });
-  const first = { count: 2, questions: Array.from({ length: 13 }, () => makeQuestion([1, 1, 0, 0])) };
-  const second = { count: 3, questions: Array.from({ length: 13 }, () => makeQuestion([0, 0, 1, 2])) };
+  const first = { count: 2, questions: Array.from({ length: 7 }, () => makeQuestion([1, 1, 0, 0])) };
+  const second = { count: 3, questions: Array.from({ length: 7 }, () => makeQuestion([0, 0, 1, 2])) };
   const combined = combineResults([first, second]);
   assert.equal(combined.count, 5);
   assert.deepEqual(combined.questions[0].counts, [1, 1, 1, 2]);

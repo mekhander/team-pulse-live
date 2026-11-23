@@ -29,6 +29,7 @@
 .results-guide strong{flex:0 0 auto;color:#22304b}
 .results-guide strong:after{content:'';display:inline-block;width:1px;height:14px;margin-left:12px;vertical-align:-2px;background:#cbd5e3}
 .results-page .comparison-list{display:grid;gap:20px}
+.results-page .team-only-list{grid-template-columns:repeat(2,minmax(0,1fr));align-items:start}
 .results-page .comparison-card{padding:26px;border:1px solid #dbe3ee;border-radius:24px;background:#fff;box-shadow:0 12px 32px rgba(26,45,78,.07)}
 .comparison-card__header{display:flex;justify-content:space-between;gap:18px;align-items:center;margin-bottom:18px}
 .results-page .comparison-card__header h2{margin:0;color:#17233d;font-size:1.34rem;letter-spacing:-.035em}
@@ -36,6 +37,7 @@
 .series-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
 .comparison-card--single .series-grid{grid-template-columns:1fr}
 .results-page .result-series{position:relative;margin:0;padding:18px 18px 16px;border:1px solid #dbe3ee;border-radius:17px;background:#f8fafd;box-shadow:none}
+.team-result-card .result-series{min-height:100%}
 .result-series:before{content:'';position:absolute;inset:0 auto 0 0;width:4px;border-radius:17px 0 0 17px;background:#4257c9}
 .result-series--team:before{background:#087ea4}
 .results-page .series-heading{display:flex;justify-content:space-between;gap:16px;align-items:center;margin:0 0 12px}
@@ -78,6 +80,7 @@
   .results-guide{display:grid;gap:4px;padding:13px 15px;font-size:.86rem;line-height:1.5}
   .results-guide strong:after{display:none}
   .results-page .comparison-list{gap:14px}
+  .results-page .team-only-list{grid-template-columns:1fr}
   .results-page .comparison-card{padding:18px 14px;border-radius:19px}
   .comparison-card__header{align-items:start;margin-bottom:15px}
   .results-page .comparison-card__header h2{font-size:1.2rem}
