@@ -35,7 +35,8 @@ async function renderDashboard() {
       <div class="link-box">설문 링크<br>${safe(surveyUrl)}</div><div class="link-box">Miro 결과 보기 링크<br>${safe(resultUrl)}</div>
       <div class="admin-actions"><button class="secondary-button" data-action="copy-survey">설문 링크 복사</button>
         <button class="secondary-button" data-action="copy-results">결과 링크 복사</button>
-        <button class="danger-button" data-action="close">설문 종료</button><button class="primary-button" data-action="publish">결과 공개</button></div>
+        <button class="danger-button" data-action="close">설문 종료</button><button class="primary-button" data-action="publish">결과 공개</button>
+        <button class="secondary-button reopen-button" data-action="reopen">응답 다시 받기</button></div>
     </article>`;
   }));
 

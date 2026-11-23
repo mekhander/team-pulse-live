@@ -108,12 +108,14 @@ export default {
         return reply({ id, viewKey }, 201);
       }
 
-      const adminAction = url.pathname.match(/^\/api\/admin\/sessions\/([^/]+)\/(close|publish)$/);
+      const adminAction = url.pathname.match(/^\/api\/admin\/sessions\/([^/]+)\/(close|publish|reopen)$/);
       if (request.method === 'POST' && adminAction) {
         const id = decodeURIComponent(adminAction[1]);
         const action = adminAction[2];
         if (action === 'publish') {
           await env.DB.prepare("UPDATE sessions SET status = 'published', published_at = ? WHERE id = ?").bind(new Date().toISOString(), id).run();
+        } else if (action === 'reopen') {
+          await env.DB.prepare("UPDATE sessions SET status = 'collecting', published_at = NULL WHERE id = ?").bind(id).run();
         } else {
           await env.DB.prepare("UPDATE sessions SET status = 'closed' WHERE id = ?").bind(id).run();
         }
